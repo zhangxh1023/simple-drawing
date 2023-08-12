@@ -1,16 +1,11 @@
 import MinaTouch from '../../utils/touch'
+import { Actions } from '../../utils/actions/actions';
 
-const boardStatus = {
-  offset: {
-    x: 0,
-    y: 0
-  },
-  ctx: null,
-};
-
-const eventStatus = {
-
-};
+/**
+ * @type { Actions | null }
+ */
+let actions = null;
+let actionId = 0;
 
 Page({
 
@@ -26,10 +21,28 @@ Page({
     new MinaTouch(this, 'touch1', {
       //会创建this.touch1指向实例对象
       touchStart: function () { },
-      touchMove: function () {
-
+      touchMove: function (evt) {
+        if (evt.touches && evt.touches.length === 1) {
+          // 画线条
+          const x = evt.touches[0].pageX;
+          const y = evt.touches[0].pageY;
+          if (actions) {
+            actions.handWriting({
+              id: actionId,
+              x,
+              y,
+              lineWidth: 3,
+              ctxColor: 'black'
+            });
+          }
+        } else {
+          // TODO 放大缩小
+          // ignore
+        }
       },
-      touchEnd: function () { },
+      touchEnd: function () {
+        actionId = ++actionId % Number.MAX_VALUE;
+      },
       touchCancel: function () { },
       multipointStart: function (evt) { }, //一个手指以上触摸屏幕触发
       multipointEnd: function () { }, //当手指离开，屏幕只剩一个手指或零个手指触发(一开始只有一根手指也会触发)
@@ -39,24 +52,20 @@ Page({
       singleTap: function () { }, //单击屏幕触发，包括长按
       rotate: function (evt) {
         //evt.angle代表两个手指旋转的角度
-        console.log(evt.angle);
       },
       pinch: function (evt) {
         //evt.zoom代表两个手指缩放的比例(多次缩放的累计值),evt.singleZoom代表单次回调中两个手指缩放的比例
-        console.log(evt);
+        let scale = evt.singleZoom;
+        actions.scale({
+          id: actionId,
+          scale,
+        });
       },
       pressMove: function (evt) {
         //evt.deltaX和evt.deltaY代表在屏幕上移动的距离,evt.target可以用来判断点击的对象
-        // console.log(evt.target);
-        // console.log(evt.deltaX);
-        console.log(evt);
-        boardStatus.offset.x = evt.deltaX;
-        boardStatus.offset.y = evt.deltaY;
-        that.updateBoard();
       },
       swipe: function (evt) {
         //在touch结束触发，evt.direction代表滑动的方向 ['Up','Right','Down','Left']
-        // console.log("swipe:" + evt.direction);
       },
     });
   },
@@ -74,34 +83,17 @@ Page({
       .exec((res) => {
         const canvas = res[0].node;
         const ctx = canvas.getContext('2d');
-        boardStatus.ctx = ctx;
         const dpr = wx.getSystemInfoSync().pixelRatio;
         canvas.width = res[0].width * dpr;
         canvas.height = res[0].height * dpr;
         ctx.scale(dpr, dpr);
+        actions = new Actions({
+          ctx,
+          canvasWidth: canvas.width,
+          canvasHeight: canvas.height,
+          canvas,
+        });
       });
-  },
-
-  // clear canvas board
-  clearBoard() {
-    const ctx = boardStatus.ctx;
-    ctx.clearRect(0, 0, 300, 300);
-  },
-
-  updateBoard() {
-    const ctx = boardStatus.ctx;
-    ctx.translate(boardStatus.offset.x, boardStatus.offset.y);
-    this.clearBoard();
-    this.draw();
-  },
-
-  draw() {
-    const ctx = boardStatus.ctx;
-    ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-
-    const rectangle = new Path2D();
-    rectangle.rect(100, 100, 50, 50);
-    ctx.fill(rectangle);
   },
 
   /**
