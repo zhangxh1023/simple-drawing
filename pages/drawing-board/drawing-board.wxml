@@ -1,0 +1,13 @@
+<!--pages/drawing-board/drawing-board.wxml-->
+<view class="page-section">
+  <canvas 
+  type="2d"
+   id="drawing-board" 
+   style="height: 100vh; width: 100vw;" 
+   catchtouchstart="touch1.start" 
+   catchtouchmove="touch1.move"
+    catchtouchend="touch1.end" 
+    catchtouchcancel="touch1.cancel"
+    catchtouchpinch="touch1.pinch"
+    ></canvas>
+</view>
