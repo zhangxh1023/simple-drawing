@@ -8,13 +8,11 @@ export class Actions {
    * 绘画动作
    * 
    * @param { object } options 配置
-   * @param { CanvasRenderingContext2D } options.ctx ctx
-   * @param { number } options.canvasWidth 画板宽度
-   * @param { number } options.canvasHeight 画板高度
-   * @param { HTMLCanvasElement } canvas canvas 对象
+   * @param { CanvasRenderingContext2D } options.boardCtx 画板 canvas context
+   * @param { HTMLCanvasElement } boardCanvas 画板 canvas 对象
    */
   constructor(options) {
-    const { ctx, canvasWidth, canvasHeight, canvas } = options;
+    const { boardCtx, boardCanvas } = options;
 
     /**
      * 已经提交的动作列表，commitActions[0] 为第一次执行的动作
@@ -31,32 +29,43 @@ export class Actions {
     this.rollbackActions = [];
 
     /**
-     * ctx
+     * 画板 canvas context
      * 
      * @type { CanvasRenderingContext2D }
      */
-    this.ctx = ctx;
+    this.boardCtx = boardCtx;
 
     /**
-     * 画板宽度
-     * 
-     * @type { number } 
-     */
-    this.canvasWidth = canvasWidth;
-
-    /**
-     * 画板高度
-     * 
-     * @type { number } 
-     */
-    this.canvasHeight = canvasHeight;
-
-    /**
-     * canvas 对象
+     * 画板 canvas 对象
      * 
      * @type { HTMLCanvasElement }
      */
-    this.canvas = canvas;
+    this.boardCanvas = boardCanvas;
+
+    /**
+     * 离屏 canvas 对象
+     * 
+     * @type { HTMLCanvasElement }
+     */
+    this.offScreenCanvas = wx.createOffscreenCanvas({
+      type: '2d',
+      width: this.boardCanvas.width,
+      height: this.boardCanvas.height
+    });
+
+    /**
+     * 离屏 canvas context
+     * 
+     * @type { CanvasRenderingContext2D }
+     */
+    this.offScreenCtx = this.offScreenCanvas.getContext('2d');
+
+    /**
+     * 当前的缩放倍数
+     * 
+     * @type {number}
+     */
+    this.currentScale = 1;
   }
 
   /**
@@ -85,7 +94,7 @@ export class Actions {
       id,
       ctxColor,
       lineWidth,
-      ctx: this.ctx
+      ctx: this.boardCtx
     });
     handwriting.exec(new Pair(x, y));
     this.commitActions.push(handwriting);
@@ -110,25 +119,42 @@ export class Actions {
     }
 
     if (!added) {
-      const scale = new Scale({
+      const s = new Scale({
         id,
-        ctx: this.ctx,
+        ctx: this.boardCtx,
+        originScale: this.currentScale
       });
-      scale.record(scale);
-      this.commitActions.push(scale);
+      s.record(scale);
+      this.commitActions.push(s);
     }
 
-    this.canvas.width = this.canvasWidth;
-    this.canvas.height = this.canvasHeight;
-    for (const item of this.commitActions) {
-      if (item instanceof Scale) {
-        item.draw();
-      }
+    const image = this.boardCanvas.toDataURL('image/png');
+    console.log(image.length);
+    this.boardCtx.fillStyle = 'yellow';
+    this.boardCtx.fillRect(0, 0, this.boardCtx.canvas.width, this.boardCtx.canvas.height);
+    // for (const item of this.commitActions) {
+    //   if (item instanceof Scale) {
+    //     item.draw();
+    //   }
+    // }
+    // for (const item of this.commitActions) {
+    //   if (item instanceof Handwriting) {
+    //     item.reDraw();
+    //   }
+    // }
+
+    // TODO 堆组件的方式
+    // ex: 画完一条线，就生成一个图片，插入
+
+    const img = this.boardCanvas.createImage();
+    img.src = image;
+    img.onload = () => {
+      const dpr = wx.getSystemInfoSync().pixelRatio;
+      console.log(img, 0, 0, img.width, img.height, this.boardCanvas.width / 4/dpr, this.boardCanvas.height / 4 / dpr, this.boardCanvas.width / 2/dpr, this.boardCanvas.height / 2/dpr);
+      this.boardCtx.drawImage(img, 0, 0, img.width, img.height, this.boardCanvas.width / 4 / dpr, this.boardCanvas.height / 4 / dpr, this.boardCanvas.width / 2 / dpr, this.boardCanvas.height / 2 / dpr);
     }
-    for (const item of this.commitActions) {
-      if (item instanceof Handwriting) {
-        item.reDraw();
-      }
+    img.onerror = (err) => {
+      console.log(err);
     }
   }
 };

@@ -1,5 +1,5 @@
-<!--pages/drawing-board/drawing-board.wxml-->
 <view class="page-section">
+  <!-- 画板 canvas -->
   <canvas 
   type="2d"
    id="drawing-board" 
@@ -8,6 +8,6 @@
    catchtouchmove="touch1.move"
     catchtouchend="touch1.end" 
     catchtouchcancel="touch1.cancel"
-    catchtouchpinch="touch1.pinch"
-    ></canvas>
+    catchtouchpinch="touch1.pinch">
+  </canvas>
 </view>

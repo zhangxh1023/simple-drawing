@@ -8,38 +8,60 @@ export class Scale {
    * @param { object } options 配置
    * @param { number } options.id 动作 id
    * @param { CanvasRenderingContext2D } options.ctx
+   * @param { number } options.originScale
+   * @param { HTMLCanvasElement } options.boardCanvas
    */
   constructor(options) {
 
-    const { id, ctx } = options;
+    const { id, ctx, originScale, boardCanvas } = options;
 
     /**
-     * @type {number} 缩放倍数，大于 0， 0.5 代表缩小为 50%，1 为 100%，2 为放大为 200%
+     * 缩放倍数，大于 0， 0.5 代表缩小为 50%，1 为 100%，2 为放大为 200%
+     * 
+     * @type {number}
      */
-    this.scale = [];
+    this.currentScale = 1;
 
     /**
      * 动作 id
      * 
-     * @type { number } id
+     * @type { number }
      */
     this.id = id;
 
     /**
-     * @type { CanvasRenderingContext2D } ctx
+     * canvas context
+     * 
+     * @type { CanvasRenderingContext2D }
      */
     this.ctx = ctx;
+
+    /**
+     * 执行缩放前，全局的缩放倍数
+     * @type { number }
+     */
+    this.originScale = originScale;
+
+    /**
+     * 上一次缩放的倍数
+     * 
+     * @type { number }
+     */
+    this.prevScale = 1;
   }
 
   /**
    * @param {number} scale 缩放倍数
    */
   record(scale) {
-    this.scale = scale;
+    this.prevScale = this.currentScale;
+    this.currentScale = scale;
   }
 
   draw() {
-    this.ctx.scale(this.scale, this.scale);
+    // 计算缩放倍数
+    const scale = this.currentScale / this.originScale / this.prevScale;
+    this.ctx.scale(scale, scale);
   }
 
 };

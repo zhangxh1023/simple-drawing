@@ -36,7 +36,7 @@ Page({
             });
           }
         } else {
-          // TODO 放大缩小
+          // TODO 双指
           // ignore
         }
       },
@@ -56,10 +56,12 @@ Page({
       pinch: function (evt) {
         //evt.zoom代表两个手指缩放的比例(多次缩放的累计值),evt.singleZoom代表单次回调中两个手指缩放的比例
         let scale = evt.singleZoom;
-        actions.scale({
-          id: actionId,
-          scale,
-        });
+        if (scale && scale > 0) {
+          actions.scale({
+            id: actionId,
+            scale,
+          });
+        }
       },
       pressMove: function (evt) {
         //evt.deltaX和evt.deltaY代表在屏幕上移动的距离,evt.target可以用来判断点击的对象
@@ -81,19 +83,25 @@ Page({
         size: true
       })
       .exec((res) => {
-        const canvas = res[0].node;
-        const ctx = canvas.getContext('2d');
+        // 画板 canvas
+        const boardCanvas = res[0].node;
+        const boardCtx = boardCanvas.getContext('2d');
         const dpr = wx.getSystemInfoSync().pixelRatio;
-        canvas.width = res[0].width * dpr;
-        canvas.height = res[0].height * dpr;
-        ctx.scale(dpr, dpr);
+        boardCanvas.width = res[0].width * dpr;
+        boardCanvas.height = res[0].height * dpr;
+        boardCtx.scale(dpr, dpr);
         actions = new Actions({
-          ctx,
-          canvasWidth: canvas.width,
-          canvasHeight: canvas.height,
-          canvas,
+          boardCtx,
+          boardCanvas,
         });
       });
+
+    setTimeout(() => {
+      actions.scale({
+        id: actionId,
+        scale: 0.5,
+      });
+    }, 4000);
   },
 
   /**
