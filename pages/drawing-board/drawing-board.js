@@ -27,7 +27,7 @@ Page({
           const x = evt.touches[0].pageX;
           const y = evt.touches[0].pageY;
           if (actions) {
-            actions.handWriting({
+            actions.execHandWriting({
               id: actionId,
               x,
               y,
@@ -42,6 +42,7 @@ Page({
       },
       touchEnd: function () {
         actionId = ++actionId % Number.MAX_VALUE;
+        actions.endHandWriting();
       },
       touchCancel: function () { },
       multipointStart: function (evt) { }, //一个手指以上触摸屏幕触发
@@ -87,21 +88,15 @@ Page({
         const boardCanvas = res[0].node;
         const boardCtx = boardCanvas.getContext('2d');
         const dpr = wx.getSystemInfoSync().pixelRatio;
-        boardCanvas.width = res[0].width * dpr;
-        boardCanvas.height = res[0].height * dpr;
+        const originWidht = res[0].width;
+        const originHeight = res[0].height;
+        boardCanvas.width = originWidht * dpr;
+        boardCanvas.height = originHeight * dpr;
         boardCtx.scale(dpr, dpr);
         actions = new Actions({
           boardCtx,
-          boardCanvas,
         });
       });
-
-    setTimeout(() => {
-      actions.scale({
-        id: actionId,
-        scale: 0.5,
-      });
-    }, 4000);
   },
 
   /**
