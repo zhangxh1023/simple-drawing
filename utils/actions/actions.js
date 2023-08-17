@@ -156,6 +156,7 @@ export class Actions {
   }
 
   /**
+   * @todo 偏移 offset，缩放中心点
    * 执行缩放动作
    * 
    * @param { object } options 配置
