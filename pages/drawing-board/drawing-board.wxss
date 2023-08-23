@@ -1,1 +1,6 @@
 /* pages/drawing-board/drawing-board.wxss */
+.btnView {
+  background-color: gray;
+  width: 100%;
+  height: 35px;
+}

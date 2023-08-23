@@ -1,5 +1,6 @@
 import MinaTouch from '../../utils/touch'
 import { Actions } from '../../utils/actions/actions';
+import { Pair } from '../../utils/actions/pair';
 
 /**
  * @type { Actions | null }
@@ -36,7 +37,7 @@ Page({
             });
           }
         } else {
-          // TODO 双指
+          // TODO 双指 拖动
           // ignore
         }
       },
@@ -57,10 +58,13 @@ Page({
       pinch: function (evt) {
         //evt.zoom代表两个手指缩放的比例(多次缩放的累计值),evt.singleZoom代表单次回调中两个手指缩放的比例
         let scale = evt.singleZoom;
+        const touch1 = evt.touches[0];
+        const touch2 = evt.touches[1];
         if (scale && scale > 0) {
           actions.scale({
             id: actionId,
             scale,
+            center: new Pair((touch1.pageX + touch2.pageX) / 2, (touch1.pageY + touch2.pageY) / 2),
           });
         }
       },
@@ -139,5 +143,6 @@ Page({
    */
   onShareAppMessage() {
 
-  }
+  },
+
 })

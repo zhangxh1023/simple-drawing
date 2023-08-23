@@ -1,3 +1,4 @@
+import { Drag } from './drag';
 import { Handwriting } from './handwriting';
 import { Pair } from './pair';
 import { Scale } from './scale';
@@ -96,6 +97,13 @@ export class Actions {
      * @type { HTMLImageElement | null }
      */
     this.offScreenImage = null;
+
+    /**
+     * 当前的拖动动作
+     * 
+     * @type { Drag | null }
+     */
+    this.currentDragAction = null;
   }
 
   /**
@@ -162,18 +170,27 @@ export class Actions {
    * @param { object } options 配置
    * @param { number } options.id 动作 id
    * @param { number } options.scale 缩放倍数
+   * @param { Pair<number> } options.center 缩放中心点 center.first: x, center.second: y
    */
-  async scale(options) {
-    const { id, scale } = options;
+  scale(options) {
+    const { id, scale, center } = options;
 
-    if (this.offScreenImage == null) return;
+    if (this.offScreenImage === null) return;
 
-    if (this.currentScaleAction == null
+    if (this.currentScaleAction === null
       || this.currentScaleAction.id !== id) {
       this.currentScaleAction = new Scale({
         id,
         originScale: this.currentScale,
         image: this.offScreenImage,
+      });
+    }
+
+    if (this.currentDragAction === null
+      || this.currentDragAction.id !== id) {
+      this.currentDragAction = new Drag({
+        id: id,
+        point: new Pair(center.first, center.second),
       });
     }
 
@@ -184,32 +201,29 @@ export class Actions {
     }
     this.currentScale = globalScale;
 
-    this.boardCtx.clearRect(0,
-      0,
-      this.boardCtx.canvas.width / this.dpr,
-      this.boardCtx.canvas.height / this.dpr
+    const canvasWidht = this.boardCtx.canvas.width;
+    const canvasHeight = this.boardCtx.canvas.height;
+    this.boardCtx.clearRect(
+      0, 0,
+      canvasWidht / this.dpr,
+      canvasHeight / this.dpr
     );
 
     this.boardCtx.drawImage(
       this.currentScaleAction.image,
-      ((this.boardCtx.canvas.width / this.dpr) - (this.boardCtx.canvas.width / this.dpr / this.currentScale)) / 2,
-      ((this.boardCtx.canvas.height / this.dpr) - (this.boardCtx.canvas.height / this.dpr / this.currentScale)) / 2,
-      this.boardCtx.canvas.width / this.dpr / this.currentScale,
-      this.boardCtx.canvas.height / this.dpr / this.currentScale,
+      ((canvasWidht / this.dpr) - (canvasWidht / this.dpr / this.currentScale)) / (canvasWidht / this.dpr / center.first) - this.currentDragAction.offset.first,
+      ((canvasHeight / this.dpr) - (canvasHeight / this.dpr / this.currentScale)) / (canvasHeight / this.dpr / center.second) - this.currentDragAction.offset.second,
+      canvasWidht / this.dpr / this.currentScale,
+      canvasHeight / this.dpr / this.currentScale,
       0, 0,
-      this.boardCtx.canvas.width / this.dpr,
-      this.boardCtx.canvas.height / this.dpr
+      canvasWidht / this.dpr,
+      canvasHeight / this.dpr
     );
 
-    console.log(
-      (this.boardCtx.canvas.width - (this.boardCtx.canvas.width / this.dpr / this.currentScale)) / 2,
-      (this.boardCtx.canvas.height - (this.boardCtx.canvas.height / this.dpr / this.currentScale)) / 2,
-      this.boardCtx.canvas.width / this.dpr / this.currentScale,
-      this.boardCtx.canvas.height / this.dpr / this.currentScale,
-      0, 0,
-      this.boardCtx.canvas.width / this.dpr,
-      this.boardCtx.canvas.height / this.dpr
-    );
+    const offsetx = center.first - this.currentDragAction.point.first;
+    const offsety = center.second - this.currentDragAction.point.second;
+    this.currentDragAction.offset = new Pair(this.currentDragAction.offset.first + offsetx, this.currentDragAction.offset.second + offsety);
+    this.currentDragAction.point = new Pair(center.first, center.second);
   }
 
   /**
