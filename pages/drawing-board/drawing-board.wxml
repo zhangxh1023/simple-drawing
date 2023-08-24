@@ -1,21 +1,39 @@
-<view class="page-section">
+<view>
   <!-- 顶部按钮 -->
-  <view class="btnView">
-    
+  <view class="topBtnView">
+    <view class="topIconView">
+      <view class="topIconItem" bindtouchstart="touchStartRollbackBtn" bindtouchend="touchEndRollbackBtn">
+        <image src="../../static/svg/rollback-black.svg" class="rollbackSVG" hidden="{{ !enbaleRollbackBtn }}"></image>
+        <image src="../../static/svg/rollback-gray.svg" class="rollbackSVG" hidden="{{ enbaleRollbackBtn }}"></image>
+      </view>
+
+      <view class="topIconItem" bindtouchstart="touchStartRedoBtn" bindtouchend="touchEndRedoBtn">
+        <image src="../../static/svg/rollback-black.svg" class="redoSVG" hidden="{{ !enbaleRedoBtn }}"></image>
+        <image src="../../static/svg/rollback-gray.svg" class="redoSVG" hidden="{{ enbaleRedoBtn }}"></image>
+      </view>
+    </view>
+
+    <view class="cancelEdit" hidden="{{ !isEditing }}" bindtap="exitEditModel">
+      退出编辑
+    </view>
   </view>
+
   <!-- 画板 canvas -->
-  <canvas 
-    type="2d"
-    id="drawing-board" 
-    style="" 
-    catchtouchstart="touch1.start" 
-    catchtouchmove="touch1.move"
-    catchtouchend="touch1.end" 
-    catchtouchcancel="touch1.cancel"
-    catchtouchpinch="touch1.pinch">
-  </canvas>
+  <view class="canvasView">
+    <canvas class="canvasBoard" type="2d" id="drawing-board" catchtouchstart="touch1.start" catchtouchmove="touch1.move" catchtouchend="touch1.end" catchtouchcancel="touch1.cancel" catchtouchpinch="touch1.pinch">
+    </canvas>
+  </view>
+
   <!-- 底部按钮 -->
-  <view class="btnView">
-  
+  <view class="bottomBtnView">
+    <view class="bottomIconView" bindtouchstart="touchStartPencilBtn" bindtouchend="touchEndPencilBtn">
+      <image class="bottomIconSVG" src="../../static/svg/pencil-black.svg" hidden="{{ !enablePencilBtn }}"></image>
+      <image class="bottomIconSVG" src="../../static/svg/pencil-gray.svg" hidden="{{ enablePencilBtn }}"></image>
+    </view>
+
+    <view class="bottomIconView" bindtouchstart="touchStartRubberBtn" bindtouchend="touchEndRubberBtn">
+      <image class="bottomIconSVG" src="../../static/svg/rubber-black.svg" hidden="{{ !enableRubberBtn }}"></image>
+      <image class="bottomIconSVG" src="../../static/svg/rubber-gray.svg" hidden="{{ enableRubberBtn }}"></image>
+    </view>
   </view>
 </view>
