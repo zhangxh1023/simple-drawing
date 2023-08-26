@@ -243,4 +243,26 @@ export class Actions {
       };
     })
   }
+
+  /**
+   * touch start 事件
+   * @param { TouchEvent } evt 
+   */
+  boardStartTouch(evt) {
+
+  }
+
+  /**
+   * touch move 事件
+   * @param { TouchEvent } evt 
+   */
+  boardTouchMove(evt) {
+  }
+
+  /**
+   * touch end 事件
+   * @param { TouchEvent } evt 
+   */
+  boardTouchEnd(evt) {
+  }
 };
