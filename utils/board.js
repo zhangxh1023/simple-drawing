@@ -42,11 +42,11 @@ export class Board {
     this.commitActions = [];
 
     /**
-     * 已经回退的动作列表，rollbackActions[0] 为第一次回退的动作
+     * 已经回退的动作列表，undoActions[0] 为第一次回退的动作
      * 
      * @type { Handwriting | ScaleDrag[] }
      */
-    this.rollbackActions = [];
+    this.undoActions = [];
 
     /**
      * 画板 canvas context
@@ -230,12 +230,8 @@ export class Board {
 
       const scaleMultiple = scaleDistance / lastAction.scaleDistance;
       // todo 记录总的缩放倍数
-      let widthOffset = lastAction.prevBoardSize.first * scaleMultiple;
-      let heightOffset = lastAction.prevBoardSize.second * scaleMultiple;
-      if (scaleMultiple < 1) {
-        widthOffset = -widthOffset;
-        heightOffset = -heightOffset;
-      }
+      const widthOffset = lastAction.prevBoardSize.first * (scaleMultiple - 1);
+      const heightOffset = lastAction.prevBoardSize.second * (scaleMultiple - 1);
       const afterScaleWidth = this.currentBoardSize.first + widthOffset;
       const afterScaleHeight = this.currentBoardSize.second + heightOffset;
       if (afterScaleWidth < originalCanvasWidth
@@ -325,9 +321,9 @@ export class Board {
             scale: 1,
             boardLeftTopVertex: new Pair(0, 0),
             canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
-              this.boardCtx.canvas.height / DPR)
+              this.boardCtx.canvas.height / DPR),
           });
-          this.offScreenImage = await this.loadOffScreenCanvas()
+          this.offScreenImage = await this.loadOffScreenCanvas();
 
         } else if (lastAction instanceof ScaleDrag) {
           // 最后一个动作是 缩放/拖动，则重绘当前 canvas
@@ -341,9 +337,101 @@ export class Board {
   }
 
   /**
+   * 清空画板
+   * 
+   * @type { CanvasRenderingContext2D } context
+   */
+  clearCtx(ctx) {
+    ctx.clearRect(
+      0, 0,
+      ctx.canvas.width / DPR,
+      ctx.canvas.height / DPR
+    );
+  }
+
+  /**
    * 根据当前缩放/offset，重绘当前 canvas
    */
   reDraw() {
+    this.clearCtx(this.boardCtx);
+    for (const item of this.commitActions) {
+      if (item instanceof Handwriting) {
+        item.reDraw({
+          ctx: this.boardCtx,
+          scale: 1,
+          boardLeftTopVertex: new Pair(0, 0),
+          canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
+            this.boardCtx.canvas.height / DPR)
+        });
+      } else if (item instanceof ScaleDrag) {
+        // todo
+      }
+    }
+  }
 
+  /**
+   * 撤销
+   */
+  async undo() {
+    if (this.commitActions.length) {
+      this.clearCtx(this.boardCtx);
+      this.clearCtx(this.offScreenCtx);
+      const lastAction = this.commitActions.pop();
+      this.undoActions.push(lastAction);
+      for (const item of this.commitActions) {
+        if (item instanceof Handwriting) {
+          this.boardCtx.beginPath();
+          this.offScreenCtx.beginPath();
+          item.reDraw({
+            ctx: this.boardCtx,
+            scale: 1,
+            boardLeftTopVertex: new Pair(0, 0),
+            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
+              this.boardCtx.canvas.height / DPR),
+            isReDrawAll: true
+          });
+          item.reDraw({
+            ctx: this.offScreenCtx,
+            scale: 1,
+            boardLeftTopVertex: new Pair(0, 0),
+            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
+              this.boardCtx.canvas.height / DPR),
+            isReDrawAll: true
+          });
+          this.boardCtx.stroke();
+          this.offScreenCtx.stroke();
+          this.offScreenImage = await this.loadOffScreenCanvas();
+        }
+      }
+    }
+  }
+
+  /**
+   * 重做
+   */
+  async redo() {
+    if (this.undoActions.length) {
+      const lastAction = this.undoActions.pop();
+      this.commitActions.push(lastAction);
+      for (const item of this.commitActions) {
+        if (item instanceof Handwriting) {
+          item.reDraw({
+            ctx: this.boardCtx,
+            scale: 1,
+            boardLeftTopVertex: new Pair(0, 0),
+            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
+              this.boardCtx.canvas.height / DPR),
+          });
+          item.reDraw({
+            ctx: this.offScreenCtx,
+            scale: 1,
+            boardLeftTopVertex: new Pair(0, 0),
+            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
+              this.boardCtx.canvas.height / DPR),
+          });
+          this.offScreenImage = await this.loadOffScreenCanvas();
+        }
+      }
+    }
   }
 };

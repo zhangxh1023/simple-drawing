@@ -75,12 +75,14 @@ export class Handwriting {
    * @param { number } options.scale 当前的缩放比例
    * @param { Pair<number> } options.boardLeftTopVertex 当前 board 左上角顶点坐标
    * @param { Pair<number> } options.canvasSize canvas大小 first: width, second: height
+   * @param { boolean } options.isReDrawAll 是否是全部重绘，如果是全部重绘，就不需要调用 beginPath / stroke
    */
   reDraw(options) {
-    const { ctx, scale, boardLeftTopVertex, canvasSize } = options;
+    const { ctx, scale, boardLeftTopVertex, canvasSize, isReDrawAll } = options;
     if (!this.points.length) return;
 
-    ctx.beginPath();
+    if (!isReDrawAll)
+      ctx.beginPath();
     ctx.strokeStyle = this.ctxColor;
     ctx.lineWidth = scale * this.width;
     ctx.lineJoin = 'round';
@@ -94,7 +96,8 @@ export class Handwriting {
         isStart = true;
       } else {
         ctx.lineTo(Math.round(item.first), Math.round(item.second));
-        ctx.stroke();
+        if (!isReDrawAll)
+          ctx.stroke();
       }
     }
   }

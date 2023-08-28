@@ -125,10 +125,11 @@ Page({
     });
   },
 
-  touchEndUndoBtn() {
+  async touchEndUndoBtn() {
     this.setData({
       enbaleUndoBtn: true
     });
+    await board.undo();
   },
 
   touchStartRedoBtn() {
@@ -137,10 +138,11 @@ Page({
     });
   },
 
-  touchEndRedoBtn() {
+  async touchEndRedoBtn() {
     this.setData({
       enbaleRedoBtn: true
     });
+    await board.redo();
   },
 
   touchStartPencilBtn() {
