@@ -1,23 +1,17 @@
 import {
-  Actions
-} from '../../utils/actions/actions';
-import {
-  Pair
-} from '../../utils/actions/pair';
-
-const TOP_BAR_HEIGHT = 60;
-const DPR = wx.getSystemInfoSync().pixelRatio;
+  Board, DPR
+} from '../../utils/board';
+import { BoardStatus } from '../../utils/board-status';
 
 /**
- * @type { Actions | null }
+ * @type { Board | null }
  */
-let actions = null;
-let actionId = 0;
+let board = null;
 
 Page({
 
   data: {
-    enbaleRollbackBtn: false,
+    enbaleUndoBtn: false,
     enbaleRedoBtn: false,
     enablePencilBtn: true,
     enableRubberBtn: true,
@@ -37,8 +31,7 @@ Page({
    * @returns 
    */
   boardTouchStart(evt) {
-    if (!this.data.isEditing) return;
-    console.log(evt);
+    board.boardTouchStart(evt);
   },
 
   /**
@@ -47,38 +40,7 @@ Page({
    * @returns 
    */
   boardTouchMove(evt) {
-    if (!this.data.isEditing) return;
-    console.log(evt);
-    if (evt.touches && evt.touches.length === 1) {
-      // 画线条
-      const x = evt.touches[0].pageX;
-      const y = evt.touches[0].pageY - TOP_BAR_HEIGHT / DPR;
-      if (actions) {
-        actions.execHandWriting({
-          id: actionId,
-          x,
-          y,
-          lineWidth: 3,
-          ctxColor: 'black'
-        });
-      }
-    } else {
-      // TODO 双指 拖动
-      // ignore
-
-      // evt.zoom代表两个手指缩放的比例(多次缩放的累计值),evt.singleZoom代表单次回调中两个手指缩放的比例
-      let scale = evt.singleZoom;
-      const touch1 = evt.touches[0];
-      const touch2 = evt.touches[1];
-      if (scale && scale > 0) {
-        actions.scale({
-          id: actionId,
-          scale,
-          center: new Pair((touch1.pageX + touch2.pageX) / 2,
-            (touch1.pageY + touch2.pageY - TOP_BAR_HEIGHT / DPR - TOP_BAR_HEIGHT / DPR) / 2),
-        });
-      }
-    }
+    board.boardTouchMove(evt);
   },
 
   /**
@@ -86,11 +48,8 @@ Page({
    * @param { TouchEvent } evt 
    * @returns 
    */
-  boardTouchEnd(evt) {
-    if (!this.data.isEditing) return;
-    console.log(evt);
-    actionId = ++actionId % Number.MAX_VALUE;
-    actions.endHandWriting();
+  async boardTouchEnd(evt) {
+    await board.boardTouchEnd(evt);
   },
 
   /**
@@ -112,7 +71,7 @@ Page({
         boardCanvas.width = originWidht * DPR;
         boardCanvas.height = originHeight * DPR;
         boardCtx.scale(DPR, DPR);
-        actions = new Actions({
+        board = new Board({
           boardCtx,
         });
       });
@@ -160,15 +119,15 @@ Page({
 
   },
 
-  touchStartRollbackBtn() {
+  touchStartUndoBtn() {
     this.setData({
-      enbaleRollbackBtn: false
+      enbaleUndoBtn: false
     });
   },
 
-  touchEndRollbackBtn() {
+  touchEndUndoBtn() {
     this.setData({
-      enbaleRollbackBtn: true
+      enbaleUndoBtn: true
     });
   },
 
@@ -195,6 +154,7 @@ Page({
       enablePencilBtn: true,
       isEditing: true,
     });
+    board.status = BoardStatus.HANDWRITING;
   },
 
   touchStartRubberBtn() {
@@ -213,6 +173,7 @@ Page({
     this.setData({
       isEditing: false,
     });
+    board.status = BoardStatus.NOEDIT;
   },
 
 })

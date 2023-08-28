@@ -1,6 +1,6 @@
 {
   "projectname": "simple-drawing",
   "setting": {
-    "compileHotReLoad": true
+    "compileHotReLoad": false
   }
 }

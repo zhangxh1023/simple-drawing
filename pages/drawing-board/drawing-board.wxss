@@ -1,6 +1,6 @@
 /* pages/drawing-board/drawing-board.wxss */
 .topBtnView {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -23,7 +23,7 @@
   box-sizing: border-box;
 }
 
-.rollbackSVG {
+.undoSVG {
   height: 40rpx;
   width: 40rpx;
   position: absolute;
@@ -61,6 +61,7 @@
   height: 100%;
   position: fixed;
   padding: 60rpx 0 100rpx 0;
+  box-sizing: border-box;
   z-index: 0;
 }
 

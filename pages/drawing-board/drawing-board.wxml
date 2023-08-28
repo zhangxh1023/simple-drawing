@@ -4,16 +4,16 @@
     <view class="topIconView">
       <view
         class="topIconItem"
-        bindtouchstart="touchStartRollbackBtn"
-        bindtouchend="touchEndRollbackBtn">
+        bindtouchstart="touchStartUndoBtn"
+        bindtouchend="touchEndUndoBtn">
         <image
-          src="../../static/svg/rollback-black.svg"
-          class="rollbackSVG"
-          hidden="{{ !enbaleRollbackBtn }}"></image>
+          src="../../static/svg/undo-black.svg"
+          class="undoSVG"
+          hidden="{{ !enbaleUndoBtn }}"></image>
         <image
-          src="../../static/svg/rollback-gray.svg"
-          class="rollbackSVG"
-          hidden="{{ enbaleRollbackBtn }}"></image>
+          src="../../static/svg/undo-gray.svg"
+          class="undoSVG"
+          hidden="{{ enbaleUndoBtn }}"></image>
       </view>
 
       <view
@@ -21,11 +21,11 @@
         bindtouchstart="touchStartRedoBtn"
         bindtouchend="touchEndRedoBtn">
         <image
-          src="../../static/svg/rollback-black.svg"
+          src="../../static/svg/undo-black.svg"
           class="redoSVG"
           hidden="{{ !enbaleRedoBtn }}"></image>
         <image
-          src="../../static/svg/rollback-gray.svg"
+          src="../../static/svg/undo-gray.svg"
           class="redoSVG"
           hidden="{{ enbaleRedoBtn }}"></image>
       </view>
