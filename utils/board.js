@@ -318,10 +318,8 @@ export class Board {
 
           lastAction.reDraw({
             ctx: this.offScreenCtx,
-            scale: 1,
-            boardLeftTopVertex: new Pair(0, 0),
-            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
-              this.boardCtx.canvas.height / DPR),
+            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+            isReDrawAll: false
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
 
@@ -354,19 +352,19 @@ export class Board {
    */
   reDraw() {
     this.clearCtx(this.boardCtx);
+    this.boardCtx.beginPath();
     for (const item of this.commitActions) {
       if (item instanceof Handwriting) {
         item.reDraw({
           ctx: this.boardCtx,
-          scale: 1,
-          boardLeftTopVertex: new Pair(0, 0),
-          canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
-            this.boardCtx.canvas.height / DPR)
+          boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+          isReDrawAll: false
         });
       } else if (item instanceof ScaleDrag) {
         // todo
       }
     }
+    this.boardCtx.stroke();
   }
 
   /**
@@ -378,31 +376,26 @@ export class Board {
       this.clearCtx(this.offScreenCtx);
       const lastAction = this.commitActions.pop();
       this.undoActions.push(lastAction);
+      this.boardCtx.beginPath();
+      this.offScreenCtx.beginPath();
       for (const item of this.commitActions) {
         if (item instanceof Handwriting) {
-          this.boardCtx.beginPath();
-          this.offScreenCtx.beginPath();
           item.reDraw({
             ctx: this.boardCtx,
             scale: 1,
-            boardLeftTopVertex: new Pair(0, 0),
-            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
-              this.boardCtx.canvas.height / DPR),
+            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
             isReDrawAll: true
           });
           item.reDraw({
             ctx: this.offScreenCtx,
-            scale: 1,
-            boardLeftTopVertex: new Pair(0, 0),
-            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
-              this.boardCtx.canvas.height / DPR),
+            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
             isReDrawAll: true
           });
-          this.boardCtx.stroke();
-          this.offScreenCtx.stroke();
           this.offScreenImage = await this.loadOffScreenCanvas();
         }
       }
+      this.boardCtx.stroke();
+      this.offScreenCtx.stroke();
     }
   }
 
@@ -417,17 +410,13 @@ export class Board {
         if (item instanceof Handwriting) {
           item.reDraw({
             ctx: this.boardCtx,
-            scale: 1,
-            boardLeftTopVertex: new Pair(0, 0),
-            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
-              this.boardCtx.canvas.height / DPR),
+            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+            isReDrawAll: false
           });
           item.reDraw({
             ctx: this.offScreenCtx,
-            scale: 1,
-            boardLeftTopVertex: new Pair(0, 0),
-            canvasSize: new Pair(this.boardCtx.canvas.width / DPR,
-              this.boardCtx.canvas.height / DPR),
+            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+            isReDrawAll: false
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
         }

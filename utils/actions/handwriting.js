@@ -72,17 +72,16 @@ export class Handwriting {
    * 
    * @param { object } options 配置
    * @param { CanvasRenderingContext2D } options.ctx 画板 context
-   * @param { number } options.scale 当前的缩放比例
-   * @param { Pair<number> } options.boardLeftTopVertex 当前 board 左上角顶点坐标
-   * @param { Pair<number> } options.canvasSize canvas大小 first: width, second: height
+   * @param { Pair<number> } options.boardSize board size
+   * @param { Pair<number> } options.offset offset 偏移
    * @param { boolean } options.isReDrawAll 是否是全部重绘，如果是全部重绘，就不需要调用 beginPath / stroke
    */
   reDraw(options) {
-    const { ctx, scale, boardLeftTopVertex, canvasSize, isReDrawAll } = options;
+    const { ctx, boardSize, offset, isReDrawAll } = options;
     if (!this.points.length) return;
 
-    if (!isReDrawAll)
-      ctx.beginPath();
+    if (!isReDrawAll) ctx.beginPath();
+    const scale = boardSize.first / ctx.canvas.width;
     ctx.strokeStyle = this.ctxColor;
     ctx.lineWidth = scale * this.width;
     ctx.lineJoin = 'round';
@@ -92,12 +91,11 @@ export class Handwriting {
       // 跳过超出屏幕的坐标点
 
       if (!isStart) {
-        ctx.moveTo(Math.round(item.first), Math.round(item.second));
+        ctx.moveTo(Math.round(item.first * scale), Math.round(item.second * scale));
         isStart = true;
       } else {
-        ctx.lineTo(Math.round(item.first), Math.round(item.second));
-        if (!isReDrawAll)
-          ctx.stroke();
+        ctx.lineTo(Math.round(item.first * scale), Math.round(item.second * scale));
+        if (!isReDrawAll) ctx.stroke();
       }
     }
   }
