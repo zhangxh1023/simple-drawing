@@ -1,3 +1,5 @@
+import { Eraser } from '../../utils/actions/eraser';
+import { Handwriting } from '../../utils/actions/handwriting';
 import { Board } from '../../utils/board';
 import { BoardStatus } from '../../utils/board-status';
 import { DPR } from '../../utils/util';
@@ -49,6 +51,39 @@ Page({
    */
   async boardTouchEnd(evt) {
     await board.boardTouchEnd(evt);
+    this.updateRedoUndoIconStatus();
+  },
+
+  /**
+   * 更新顶部左上角两个 撤销/重做 按钮状态
+   */
+  updateRedoUndoIconStatus() {
+    let enbaleUndoBtn = false;
+    let enbaleRedoBtn = false;
+    const canUndoActions = this.filterRedoUnDoActions(board.commitActions);
+    const canRedoActions = this.filterRedoUnDoActions(board.undoActions);
+    if (canUndoActions.length) {
+      enbaleUndoBtn = true;
+    }
+    if (canRedoActions.length) {
+      enbaleRedoBtn = true;
+    }
+    this.setData({
+      enbaleUndoBtn,
+      enbaleRedoBtn
+    });
+  },
+
+  /**
+   * 可以 撤销 / 重做 的动作
+   * @param {import('../../utils/board').Action []} actions 
+   * @returns { import('../../utils/board').Action [] }
+   */
+  filterRedoUnDoActions(actions) {
+    return actions.filter(item => {
+      return item instanceof Handwriting
+        || item instanceof Eraser;
+    });
   },
 
   /**
@@ -129,6 +164,7 @@ Page({
       enbaleUndoBtn: true
     });
     await board.undo();
+    this.updateRedoUndoIconStatus();
   },
 
   touchStartRedoBtn() {
@@ -142,6 +178,7 @@ Page({
       enbaleRedoBtn: true
     });
     await board.redo();
+    this.updateRedoUndoIconStatus();
   },
 
   touchStartPencilBtn() {

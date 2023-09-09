@@ -1,31 +1,33 @@
 /* pages/drawing-board/drawing-board.wxss */
 .topBtnView {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 60rpx;
+  height: 70rpx;
   z-index: 1;
   display: flex;
   justify-content: space-between;
   padding: 0 30rpx;
   box-sizing: border-box;
+  border-bottom: 1rpx solid gray;
 }
 
 .bottomBtnView {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 100rpx;
+  height: 110rpx;
   display: flex;
   padding: 0 30rpx;
   box-sizing: border-box;
+  border-top: 1rpx solid gray;
 }
 
 .undoSVG {
-  height: 40rpx;
-  width: 40rpx;
+  height: 55rpx;
+  width: 55rpx;
   position: absolute;
 }
 
@@ -34,8 +36,8 @@
 }
 
 .topIconItem {
-  height: 60rpx;
-  width: 60rpx;
+  height: 70rpx;
+  width: 70rpx;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,15 +45,15 @@
 }
 
 .redoSVG {
-  height: 40rpx;
-  width: 40rpx;
+  height: 55rpx;
+  width: 55rpx;
   position: absolute;
   transform: rotateY(180deg);
 }
 
 .cancelEdit {
-  height: 60rpx;
-  line-height: 60rpx;
+  height: 70rpx;
+  line-height: 70rpx;
   float: right;
   color: rgb(61, 60, 60);
 }
@@ -60,7 +62,7 @@
   width: 100%;
   height: 100%;
   position: fixed;
-  padding: 60rpx 0 100rpx 0;
+  padding: 70rpx 0 110rpx 0;
   box-sizing: border-box;
   z-index: 0;
 }
@@ -71,8 +73,8 @@
 }
 
 .bottomIconView {
-  height: 60rpx;
-  width: 60rpx;
+  height: 70rpx;
+  width: 70rpx;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -80,7 +82,7 @@
 }
 
 .bottomIconSVG {
-  height: 40rpx;
-  width: 40rpx;
+  height: 55rpx;
+  width: 55rpx;
   position: absolute;
 }

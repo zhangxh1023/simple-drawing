@@ -193,7 +193,7 @@ export class Board {
     // 缩放两指距离 只看前两个 touches
     let scaleDistance = 1;
     if (points.length > 1) {
-      Math.sqrt(Math.pow(points[0].x - points[1].x, 2)
+      scaleDistance = Math.sqrt(Math.pow(points[0].x - points[1].x, 2)
         + Math.pow(points[0].y - points[1].y, 2));
     }
 
@@ -261,8 +261,8 @@ export class Board {
 
       this.boardCtx.drawImage(
         this.offScreenImage,
-        (originalCanvasWidth - subImageX) / DPR / 2 - this.currentBoardPosition.first,
-        (originalCanvasHeight - subImageY) / DPR / 2 - this.currentBoardPosition.second,
+        ((originalCanvasWidth - subImageX) / DPR / 2) - this.currentBoardPosition.first,
+        ((originalCanvasHeight - subImageY) / DPR / 2) - this.currentBoardPosition.second,
         subImageX / DPR,
         subImageY / DPR,
         0, 0,

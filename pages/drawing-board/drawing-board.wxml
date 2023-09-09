@@ -3,7 +3,6 @@
   <view class="topBtnView">
     <view class="topIconView">
       <view
-        style="display: none;"
         class="topIconItem"
         bindtouchstart="touchStartUndoBtn"
         bindtouchend="touchEndUndoBtn">
@@ -18,7 +17,6 @@
       </view>
 
       <view
-        style="display: none;"
         class="topIconItem"
         bindtouchstart="touchStartRedoBtn"
         bindtouchend="touchEndRedoBtn">
