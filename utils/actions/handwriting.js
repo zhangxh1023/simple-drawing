@@ -1,3 +1,4 @@
+import { DPR } from '../util';
 import { Pair } from './pair';
 
 export class Handwriting {
@@ -87,14 +88,22 @@ export class Handwriting {
     ctx.lineJoin = 'round';
 
     let isStart = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    offsetX -= (boardSize.first - ctx.canvas.width) / 2 / DPR;
+    offsetY -= (boardSize.second - ctx.canvas.height) / 2 / DPR;
+    if (offset) {
+      offsetX += offset.first;
+      offsetY += offset.second;
+    }
+
     for (const item of this.points) {
       // 跳过超出屏幕的坐标点
-
       if (!isStart) {
-        ctx.moveTo(Math.round(item.first * scale), Math.round(item.second * scale));
+        ctx.moveTo(Math.round(item.first * scale) + offsetX, Math.round(item.second * scale) + offsetY);
         isStart = true;
       } else {
-        ctx.lineTo(Math.round(item.first * scale), Math.round(item.second * scale));
+        ctx.lineTo(Math.round(item.first * scale) + offsetX, Math.round(item.second * scale) + offsetY);
         if (!isReDrawAll) ctx.stroke();
       }
     }

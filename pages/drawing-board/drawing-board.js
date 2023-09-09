@@ -1,7 +1,6 @@
-import {
-  Board, DPR
-} from '../../utils/board';
+import { Board } from '../../utils/board';
 import { BoardStatus } from '../../utils/board-status';
+import { DPR } from '../../utils/util';
 
 /**
  * @type { Board | null }

@@ -3,6 +3,7 @@ import { Handwriting } from './actions/handwriting';
 import { Pair } from './actions/pair';
 import { ScaleDrag } from './actions/scale-drag';
 import { BoardStatus } from './board-status';
+import { DPR } from './util';
 
 /**
  * |--------------------|
@@ -17,11 +18,6 @@ import { BoardStatus } from './board-status';
 /**
  * @typedef { Handwriting | ScaleDrag | Eraser } Action 动作
  */
-
-/**
- * 设备 dpr
- */
-export const DPR = wx.getSystemInfoSync().pixelRatio;
 
 export class Board {
 
@@ -176,6 +172,7 @@ export class Board {
 
   /**
    * 执行缩放拖动动作
+   * 更新状态，渲染离屏 image
    * 
    * @param {TouchEvent} evt 
    */
@@ -194,10 +191,11 @@ export class Board {
     dragCenter.second /= points.length;
 
     // 缩放两指距离 只看前两个 touches
-    const scaleDistance = Math.sqrt(
-      Math.pow(points[0].x - points[1].x, 2)
-      + Math.pow(points[0].y - points[1].y, 2)
-    );
+    let scaleDistance = 1;
+    if (points.length > 1) {
+      Math.sqrt(Math.pow(points[0].x - points[1].x, 2)
+        + Math.pow(points[0].y - points[1].y, 2));
+    }
 
     /**
      * @type { ScaleDrag | null }
@@ -228,16 +226,22 @@ export class Board {
       const originalCanvasWidth = this.boardCtx.canvas.width;
       const originalCanvasHeight = this.boardCtx.canvas.height;
 
+      this.currentBoardPosition.first += (dragCenter.first - lastAction.dragCenter.first);
+      this.currentBoardPosition.second += (dragCenter.second - lastAction.dragCenter.second);
+
       const scaleMultiple = scaleDistance / lastAction.scaleDistance;
+      lastAction.scaleDistance = scaleDistance;
+      lastAction.dragCenter = dragCenter;
       // todo 记录总的缩放倍数
       const widthOffset = lastAction.prevBoardSize.first * (scaleMultiple - 1);
       const heightOffset = lastAction.prevBoardSize.second * (scaleMultiple - 1);
-      const afterScaleWidth = this.currentBoardSize.first + widthOffset;
-      const afterScaleHeight = this.currentBoardSize.second + heightOffset;
+      let afterScaleWidth = this.currentBoardSize.first + widthOffset;
+      let afterScaleHeight = this.currentBoardSize.second + heightOffset;
       if (afterScaleWidth < originalCanvasWidth
         || afterScaleHeight < originalCanvasHeight) {
         // 缩放后的画布大小，不能小于当前画布大小
-        return;
+        afterScaleWidth = originalCanvasWidth;
+        afterScaleHeight = originalCanvasHeight;
       }
 
       // 更新缩放后的 board size
@@ -257,18 +261,14 @@ export class Board {
 
       this.boardCtx.drawImage(
         this.offScreenImage,
-        (originalCanvasWidth - subImageX) / DPR / 2,
-        (originalCanvasHeight - subImageY) / DPR / 2,
+        (originalCanvasWidth - subImageX) / DPR / 2 - this.currentBoardPosition.first,
+        (originalCanvasHeight - subImageY) / DPR / 2 - this.currentBoardPosition.second,
         subImageX / DPR,
         subImageY / DPR,
         0, 0,
         originalCanvasWidth / DPR,
         originalCanvasHeight / DPR
       );
-
-      const offsetx = dragCenter.first - lastAction.dragCenter.first;
-      const offsety = dragCenter.second - lastAction.dragCenter.second;
-      lastAction.dragCenter = new Pair(lastAction.dragCenter.first + offsetx, lastAction.dragCenter.second + offsety);
     }
   }
 
@@ -293,7 +293,8 @@ export class Board {
       } else if (this.status === BoardStatus.ERASER) {
 
       } else if (this.status === BoardStatus.NOEDIT) {
-
+        // 单指拖动
+        this.execScaleDrag(evt);
       }
     } else if (evt.touches.length > 1) {
       // 多指 拖动 缩放
@@ -306,7 +307,6 @@ export class Board {
    * @param { TouchEvent } evt 
    */
   async boardTouchEnd(evt) {
-    console.log(evt);
     if (!evt.touches.length
       && this.commitActions.length) {
       // 所有的手指 都离开了屏幕
@@ -358,7 +358,8 @@ export class Board {
         item.reDraw({
           ctx: this.boardCtx,
           boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-          isReDrawAll: false
+          isReDrawAll: true,
+          offset: this.currentBoardPosition
         });
       } else if (item instanceof ScaleDrag) {
         // todo
