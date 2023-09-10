@@ -320,7 +320,7 @@ export class Board {
 
           lastAction.reDraw({
             ctx: this.offScreenCtx,
-            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+            boardSize: new Pair(this.offScreenCanvas.width, this.offScreenCanvas.height),
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
 
@@ -381,7 +381,7 @@ export class Board {
           });
           item.reDraw({
             ctx: this.offScreenCtx,
-            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+            boardSize: new Pair(this.offScreenCanvas.width, this.offScreenCanvas.height),
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
         }
@@ -404,7 +404,7 @@ export class Board {
           });
           item.reDraw({
             ctx: this.offScreenCtx,
-            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+            boardSize: new Pair(this.offScreenCanvas.width, this.offScreenCanvas.height),
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
         }
