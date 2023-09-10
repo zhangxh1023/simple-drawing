@@ -43,6 +43,30 @@ export class Eraser {
   }
 
   /**
+   * 增加橡皮擦轨迹坐标点
+   * 手写橡皮擦坐标点不用考虑画到屏幕外面的情况
+   * 
+   * @param { object } options 配置
+   * @param { CanvasRenderingContext2D } options.ctx 画板 context
+   * @param { Pair<number> } options.point 坐标点
+   */
+  addPoint(options) {
+    const { ctx, point } = options;
+    this.points.push(point);
+    const currPoint = this.points[this.points.length - 1];
+    if (this.points.length == 1) {
+      ctx.beginPath();
+      ctx.strokeStyle = this.ctxColor;
+      ctx.lineWidth = this.width;
+      ctx.lineJoin = 'round';
+      ctx.moveTo(Math.round(currPoint.first), Math.round(currPoint.second));
+    } else {
+      ctx.lineTo(Math.round(currPoint.first), Math.round(currPoint.second));
+      ctx.stroke();
+    }
+  }
+
+  /**
    * 橡皮擦
    * 绘制背景色线条
    * 只绘制当前屏幕中的，超出屏幕的部分跳过

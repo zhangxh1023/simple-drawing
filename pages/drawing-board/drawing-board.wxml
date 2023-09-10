@@ -68,7 +68,6 @@
     </view>
 
     <view
-      style="display: none;"
       class="bottomIconView"
       bindtouchstart="touchStartRubberBtn"
       bindtouchend="touchEndRubberBtn">

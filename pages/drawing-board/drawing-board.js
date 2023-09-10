@@ -204,7 +204,9 @@ Page({
   touchEndRubberBtn() {
     this.setData({
       enableRubberBtn: true,
+      isEditing: true,
     });
+    board.status = BoardStatus.ERASER;
   },
 
   exitEditModel() {

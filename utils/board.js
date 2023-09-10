@@ -291,7 +291,7 @@ export class Board {
       if (this.status === BoardStatus.HANDWRITING) {
         this.execHandWriting(evt);
       } else if (this.status === BoardStatus.ERASER) {
-
+        this.execEraser(evt);
       } else if (this.status === BoardStatus.NOEDIT) {
         // 单指拖动
         this.execScaleDrag(evt);
@@ -423,5 +423,38 @@ export class Board {
         }
       }
     }
+  }
+
+  /**
+   * 橡皮擦事件
+   * 
+   * @param {TouchEvent} evt 
+   */
+  execEraser(evt) {
+    const x = evt.touches[0].x;
+    const y = evt.touches[0].y;
+
+    if (this.commitActions.length) {
+      const lastAction = this.commitActions[this.commitActions.length - 1];
+      if (lastAction instanceof Eraser && lastAction.actionVersion === this.actionVersion) {
+        lastAction.addPoint({
+          ctx: this.boardCtx,
+          point: new Pair(x, y)
+        });
+        return;
+      }
+    }
+
+    const eraser = new Eraser({
+      actionVersion: this.actionVersion,
+      ctxColor: 'white',
+      width: this.handwritingWidth * 2,
+      ctx: this.boardCtx
+    });
+    eraser.addPoint({
+      ctx: this.boardCtx,
+      point: new Pair(x, y)
+    });
+    this.commitActions.push(eraser);
   }
 };
