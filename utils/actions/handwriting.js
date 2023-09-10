@@ -53,19 +53,23 @@ export class Handwriting {
    * @param { object } options 配置
    * @param { CanvasRenderingContext2D } options.ctx 画板 context
    * @param { Pair<number> } options.point 坐标点
+   * @param { Pair<number> } options.boardSize board size
+   * @param { Pair<number> } options.offset offset 偏移
    */
   addPoint(options) {
-    const { ctx, point } = options;
-    this.points.push(point);
-    const currPoint = this.points[this.points.length - 1];
+    const { ctx, point, boardSize, offset } = options;
+    const scale = boardSize.first / ctx.canvas.width;
+    const offsetX = offset.first / scale;
+    const offsetY = offset.second / scale;
+    this.points.push(new Pair(point.first + offsetX, point.second + offsetY));
     if (this.points.length == 1) {
       ctx.beginPath();
       ctx.strokeStyle = this.ctxColor;
       ctx.lineWidth = this.width;
       ctx.lineJoin = 'round';
-      ctx.moveTo(Math.round(currPoint.first), Math.round(currPoint.second));
+      ctx.moveTo(Math.round(point.first), Math.round(point.second));
     } else {
-      ctx.lineTo(Math.round(currPoint.first), Math.round(currPoint.second));
+      ctx.lineTo(Math.round(point.first), Math.round(point.second));
       ctx.stroke();
     }
   }
@@ -102,10 +106,10 @@ export class Handwriting {
     for (const item of this.points) {
       // 跳过超出屏幕的坐标点
       if (!isStart) {
-        ctx.moveTo(Math.round(item.first * scale) + offsetX, Math.round(item.second * scale) + offsetY);
+        ctx.moveTo(Math.round(item.first * scale) + (offsetX / scale), Math.round(item.second * scale) + (offsetY / scale));
         isStart = true;
       } else {
-        ctx.lineTo(Math.round(item.first * scale) + offsetX, Math.round(item.second * scale) + offsetY);
+        ctx.lineTo(Math.round(item.first * scale) + (offsetX / scale), Math.round(item.second * scale) + (offsetY / scale));
       }
     }
     ctx.stroke();

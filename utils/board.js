@@ -144,15 +144,15 @@ export class Board {
   execHandWriting(evt) {
     const x = evt.touches[0].x;
     const y = evt.touches[0].y;
-    const globalScale = this.getGlobalScale();
 
     if (this.commitActions.length) {
       const lastAction = this.commitActions[this.commitActions.length - 1];
       if (lastAction instanceof Handwriting && lastAction.actionVersion === this.actionVersion) {
         lastAction.addPoint({
           ctx: this.boardCtx,
-          point: new Pair(x - (this.currentBoardPosition.first / globalScale),
-            y - (this.currentBoardPosition.second / globalScale))
+          point: new Pair(x, y),
+          boardSize: this.currentBoardSize,
+          offset: this.currentBoardPosition
         });
         return;
       }
@@ -166,8 +166,9 @@ export class Board {
     });
     handwriting.addPoint({
       ctx: this.boardCtx,
-      point: new Pair(x - (this.currentBoardPosition.first / globalScale),
-        y - (this.currentBoardPosition.second / globalScale))
+      point: new Pair(x, y),
+      boardSize: this.currentBoardSize,
+      offset: this.currentBoardPosition
     });
     this.commitActions.push(handwriting);
   }
@@ -235,7 +236,7 @@ export class Board {
 
       lastAction.dragCenter = dragCenter;
       lastAction.scaleDistance = scaleDistance;
-      
+
       const widthOffset = lastAction.initBoardSize.first * (scaleMultiple - 1);
       const heightOffset = lastAction.initBoardSize.second * (scaleMultiple - 1);
       let afterScaleWidth = this.currentBoardSize.first + widthOffset;
@@ -250,6 +251,20 @@ export class Board {
       // 更新缩放后的 board size
       this.currentBoardSize.first = afterScaleWidth;
       this.currentBoardSize.second = afterScaleHeight;
+
+      // 限制拖动范围
+      if (this.currentBoardPosition.first > 0) {
+        this.currentBoardPosition.first = 0;
+      }
+      if (this.currentBoardPosition.second > 0) {
+        this.currentBoardPosition.second = 0;
+      }
+      if (this.currentBoardPosition.first < originalCanvasWidth - this.currentBoardSize.first) {
+        this.currentBoardPosition.first = originalCanvasWidth - this.currentBoardSize.first;
+      }
+      if (this.currentBoardPosition.second < originalCanvasHeight - this.currentBoardSize.second) {
+        this.currentBoardPosition.second = originalCanvasHeight - this.currentBoardSize.second;
+      }
 
       this.boardCtx.clearRect(
         0, 0,
@@ -320,7 +335,7 @@ export class Board {
 
           lastAction.reDraw({
             ctx: this.offScreenCtx,
-            boardSize: new Pair(this.offScreenCanvas.width, this.offScreenCanvas.height),
+            boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
 
@@ -434,8 +449,9 @@ export class Board {
       if (lastAction instanceof Handwriting && lastAction.actionVersion === this.actionVersion) {
         lastAction.addPoint({
           ctx: this.boardCtx,
-          point: new Pair(x - (this.currentBoardPosition.first / globalScale),
-            y - (this.currentBoardPosition.second / globalScale))
+          point: new Pair(x, y),
+          boardSize: this.currentBoardSize,
+          offset: this.currentBoardPosition
         });
         return;
       }
@@ -449,8 +465,9 @@ export class Board {
     });
     eraser.addPoint({
       ctx: this.boardCtx,
-      point: new Pair(x - (this.currentBoardPosition.first / globalScale),
-        y - (this.currentBoardPosition.second / globalScale))
+      point: new Pair(x, y),
+      boardSize: this.currentBoardSize,
+      offset: this.currentBoardPosition
     });
     this.commitActions.push(eraser);
   }
