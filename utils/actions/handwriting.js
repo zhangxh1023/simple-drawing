@@ -78,13 +78,12 @@ export class Handwriting {
    * @param { CanvasRenderingContext2D } options.ctx 画板 context
    * @param { Pair<number> } options.boardSize board size
    * @param { Pair<number> } options.offset offset 偏移
-   * @param { boolean } options.isReDrawAll 是否是全部重绘，如果是全部重绘，就不需要调用 beginPath / stroke
    */
   reDraw(options) {
-    const { ctx, boardSize, offset, isReDrawAll } = options;
+    const { ctx, boardSize, offset } = options;
     if (!this.points.length) return;
 
-    if (!isReDrawAll) ctx.beginPath();
+    ctx.beginPath();
     const scale = boardSize.first / ctx.canvas.width;
     ctx.strokeStyle = this.ctxColor;
     ctx.lineWidth = scale * this.width;
@@ -107,9 +106,9 @@ export class Handwriting {
         isStart = true;
       } else {
         ctx.lineTo(Math.round(item.first * scale) + offsetX, Math.round(item.second * scale) + offsetY);
-        if (!isReDrawAll) ctx.stroke();
       }
     }
+    ctx.stroke();
   }
 
 };

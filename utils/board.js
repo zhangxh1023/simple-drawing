@@ -317,7 +317,6 @@ export class Board {
           lastAction.reDraw({
             ctx: this.offScreenCtx,
             boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-            isReDrawAll: false
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
 
@@ -350,20 +349,17 @@ export class Board {
    */
   reDraw() {
     this.clearCtx(this.boardCtx);
-    this.boardCtx.beginPath();
     for (const item of this.commitActions) {
       if (item instanceof Handwriting) {
         item.reDraw({
           ctx: this.boardCtx,
           boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-          isReDrawAll: true,
           offset: this.currentBoardPosition
         });
       } else if (item instanceof ScaleDrag) {
         // todo
       }
     }
-    this.boardCtx.stroke();
   }
 
   /**
@@ -375,26 +371,19 @@ export class Board {
       this.clearCtx(this.offScreenCtx);
       const lastAction = this.commitActions.pop();
       this.undoActions.push(lastAction);
-      this.boardCtx.beginPath();
-      this.offScreenCtx.beginPath();
       for (const item of this.commitActions) {
         if (item instanceof Handwriting) {
           item.reDraw({
             ctx: this.boardCtx,
-            scale: 1,
             boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-            isReDrawAll: true
           });
           item.reDraw({
             ctx: this.offScreenCtx,
             boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-            isReDrawAll: true
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
         }
       }
-      this.boardCtx.stroke();
-      this.offScreenCtx.stroke();
     }
   }
 
@@ -410,12 +399,10 @@ export class Board {
           item.reDraw({
             ctx: this.boardCtx,
             boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-            isReDrawAll: false
           });
           item.reDraw({
             ctx: this.offScreenCtx,
             boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-            isReDrawAll: false
           });
           this.offScreenImage = await this.loadOffScreenCanvas();
         }
@@ -447,8 +434,7 @@ export class Board {
       actionVersion: this.actionVersion,
       // todo background color
       ctxColor: 'white',
-      width: this.handwritingWidth * 2,
-      ctx: this.boardCtx
+      width: this.handwritingWidth * 4,
     });
     eraser.addPoint({
       ctx: this.boardCtx,
