@@ -1,4 +1,3 @@
-import { Eraser } from '../../utils/actions/eraser';
 import { Handwriting } from '../../utils/actions/handwriting';
 import { Board } from '../../utils/board';
 import { BoardStatus } from '../../utils/board-status';
@@ -81,8 +80,7 @@ Page({
    */
   filterRedoUnDoActions(actions) {
     return actions.filter(item => {
-      return item instanceof Handwriting
-        || item instanceof Eraser;
+      return item instanceof Handwriting;
     });
   },
 

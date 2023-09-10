@@ -1,6 +1,9 @@
 import { DPR } from '../util';
 import { Pair } from './pair';
 
+/**
+ * 手写线条 / 橡皮擦
+ */
 export class Handwriting {
 
   /**

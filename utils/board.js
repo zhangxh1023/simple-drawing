@@ -1,4 +1,3 @@
-import { Eraser } from './actions/eraser';
 import { Handwriting } from './actions/handwriting';
 import { Pair } from './actions/pair';
 import { ScaleDrag } from './actions/scale-drag';
@@ -16,7 +15,7 @@ import { DPR } from './util';
  */
 
 /**
- * @typedef { Handwriting | ScaleDrag | Eraser } Action 动作
+ * @typedef { Handwriting | ScaleDrag } Action 动作
  */
 
 export class Board {
@@ -312,8 +311,7 @@ export class Board {
       // 所有的手指 都离开了屏幕
       const lastAction = this.commitActions[this.commitActions.length - 1];
       if (lastAction.actionVersion === this.actionVersion) {
-        if (lastAction instanceof Handwriting
-          || lastAction instanceof Eraser) {
+        if (lastAction instanceof Handwriting) {
           // 最后一个动作是 手写/橡皮擦，重绘到离屏 canvas
 
           lastAction.reDraw({
@@ -436,7 +434,7 @@ export class Board {
 
     if (this.commitActions.length) {
       const lastAction = this.commitActions[this.commitActions.length - 1];
-      if (lastAction instanceof Eraser && lastAction.actionVersion === this.actionVersion) {
+      if (lastAction instanceof Handwriting && lastAction.actionVersion === this.actionVersion) {
         lastAction.addPoint({
           ctx: this.boardCtx,
           point: new Pair(x, y)
@@ -445,8 +443,9 @@ export class Board {
       }
     }
 
-    const eraser = new Eraser({
+    const eraser = new Handwriting({
       actionVersion: this.actionVersion,
+      // todo background color
       ctxColor: 'white',
       width: this.handwritingWidth * 2,
       ctx: this.boardCtx
