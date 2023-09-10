@@ -80,5 +80,33 @@
         src="../../static/svg/rubber-gray.svg"
         hidden="{{ enableRubberBtn }}"></image>
     </view>
+
+    <view
+      class="bottomIconView"
+      bindtouchstart="touchStartDownloadBtn"
+      bindtouchend="touchEndDownloadBtn">
+      <image
+        class="bottomIconSVG"
+        src="../../static/svg/download-black.svg"
+        hidden="{{ !enableDownloadBtn }}"></image>
+      <image
+        class="bottomIconSVG"
+        src="../../static/svg/download-gray.svg"
+        hidden="{{ enableDownloadBtn }}"></image>
+    </view>
+
+    <view
+      class="bottomIconView"
+      bindtouchstart="touchStartResetBtn"
+      bindtouchend="touchEndResetBtn">
+      <image
+        class="bottomIconSVG"
+        src="../../static/svg/reset-black.svg"
+        hidden="{{ !enableResetBtn }}"></image>
+      <image
+        class="bottomIconSVG"
+        src="../../static/svg/reset-gray.svg"
+        hidden="{{ enableResetBtn }}"></image>
+    </view>
   </view>
 </view>

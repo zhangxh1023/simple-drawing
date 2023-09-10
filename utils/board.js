@@ -235,11 +235,17 @@ export class Board {
 
       lastAction.dragCenter = dragCenter;
       lastAction.scaleDistance = scaleDistance;
-      // todo 记录总的缩放倍数
+      
       const widthOffset = lastAction.initBoardSize.first * (scaleMultiple - 1);
       const heightOffset = lastAction.initBoardSize.second * (scaleMultiple - 1);
       let afterScaleWidth = this.currentBoardSize.first + widthOffset;
       let afterScaleHeight = this.currentBoardSize.second + heightOffset;
+      if (afterScaleWidth < originalCanvasWidth
+        || afterScaleHeight < originalCanvasHeight) {
+        // 缩放后的画布大小，不能小于当前画布大小
+        afterScaleWidth = originalCanvasWidth;
+        afterScaleHeight = originalCanvasHeight;
+      }
 
       // 更新缩放后的 board size
       this.currentBoardSize.first = afterScaleWidth;
@@ -274,7 +280,7 @@ export class Board {
    * @param { TouchEvent } evt 
    */
   boardTouchStart(evt) {
-    // ignore
+    this.actionVersion = ++this.actionVersion % Number.MAX_VALUE;
   }
 
   /**
@@ -323,10 +329,8 @@ export class Board {
           this.reDraw();
         }
       }
-
-
-      this.actionVersion = ++this.actionVersion % Number.MAX_VALUE;
     }
+    this.actionVersion = ++this.actionVersion % Number.MAX_VALUE;
   }
 
   /**
@@ -449,5 +453,12 @@ export class Board {
         y - (this.currentBoardPosition.second / globalScale))
     });
     this.commitActions.push(eraser);
+  }
+
+  /**
+   * 重置画板
+   */
+  reset() {
+    this.clearCtx(this.boardCtx);
   }
 };

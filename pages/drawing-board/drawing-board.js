@@ -15,6 +15,8 @@ Page({
     enbaleRedoBtn: false,
     enablePencilBtn: true,
     enableRubberBtn: true,
+    enableDownloadBtn: true,
+    enableResetBtn: true,
     isEditing: false,
   },
 
@@ -215,6 +217,116 @@ Page({
       isEditing: false,
     });
     board.status = BoardStatus.NOEDIT;
+  },
+
+  touchStartDownloadBtn() {
+    this.setData({
+      enableDownloadBtn: false,
+    });
+  },
+
+  touchEndDownloadBtn() {
+    this.setData({
+      enableDownloadBtn: true,
+    });
+    wx.showModal({
+      title: '提示',
+      content: '是否要下载保存当前图片？',
+      success(res) {
+        if (res.confirm) {
+          const query = wx.createSelectorQuery()
+          query.select('#drawing-board')
+            .fields({
+              node: true,
+              size: true
+            })
+            .exec((res) => {
+              const boardCanvas = res[0].node;
+              const originWidht = res[0].width;
+              const originHeight = res[0].height;
+              wx.canvasToTempFilePath({
+                x: 0,
+                y: 0,
+                width: originWidht,
+                height: originHeight,
+                destWidth: originWidht,
+                destHeight: originHeight,
+                canvas: boardCanvas,
+                success(toPathRes) {
+                  wx.saveImageToPhotosAlbum({
+                    filePath: toPathRes.tempFilePath,
+                    success(saveRes) {
+                      wx.showToast({
+                        title: '保存成功',
+                        icon: 'success',
+                        duration: 2000
+                      });
+                    },
+                    fail(saveErr) {
+                      wx.showToast({
+                        title: `保存失败: ${saveErr.errMsg}`,
+                        icon: 'error',
+                        duration: 2000
+                      });
+                    }
+                  })
+                },
+                fail(toPathErr) {
+                  wx.showToast({
+                    title: `下载失败: ${toPathErr.errMsg}`,
+                    icon: 'error',
+                    duration: 2000
+                  });
+                }
+              })
+            });
+        }
+      }
+    });
+  },
+
+  touchStartResetBtn() {
+    this.setData({
+      enableResetBtn: false,
+    });
+  },
+
+  touchEndResetBtn() {
+    this.setData({
+      enableResetBtn: true,
+    });
+
+    const _this = this;
+    wx.showModal({
+      title: '提示',
+      content: '是否确定要重置画板？此操作无法回退！',
+      success(res) {
+        if (res.confirm) {
+          board.reset();
+          const query = wx.createSelectorQuery()
+          query.select('#drawing-board')
+            .fields({
+              node: true,
+              size: true
+            })
+            .exec((res) => {
+              const boardCanvas = res[0].node;
+              const boardCtx = boardCanvas.getContext('2d');
+              const originWidht = res[0].width;
+              const originHeight = res[0].height;
+              boardCanvas.width = originWidht * DPR;
+              boardCanvas.height = originHeight * DPR;
+              boardCtx.scale(DPR, DPR);
+              board = new Board({
+                boardCtx,
+              });
+              _this.updateRedoUndoIconStatus();
+              _this.exitEditModel();
+            });
+        }
+      }
+    })
+
   },
 
 })
