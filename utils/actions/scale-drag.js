@@ -9,11 +9,11 @@ export class ScaleDrag {
    * @param { number } options.actionVersion 动作 versoin
    * @param { number } options.scaleDistance 缩放的两指距离
    * @param { Pair<number> } options.dragCenter 拖动的中心点坐标
-   * @param { Pair<number> } options.prevBoardSize 执行缩放之前的 board size
+   * @param { Pair<number> } options.initBoardSize 执行缩放之前的 board size
    */
   constructor(options) {
 
-    const { actionVersion, scaleDistance, dragCenter, prevBoardSize } = options;
+    const { actionVersion, scaleDistance, dragCenter, initBoardSize } = options;
 
     /**
      * 动作 version
@@ -41,6 +41,7 @@ export class ScaleDrag {
      * 
      * @type { Pair<number> }
      */
-    this.prevBoardSize = prevBoardSize;
+    this.initBoardSize = initBoardSize;
+    
   }
 };

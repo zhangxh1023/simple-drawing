@@ -158,11 +158,14 @@ Page({
   },
 
   async touchEndUndoBtn() {
+    // todo 撤销笔画动作优化
+    wx.showLoading();
     this.setData({
       enbaleUndoBtn: true
     });
     await board.undo();
     this.updateRedoUndoIconStatus();
+    wx.hideLoading();
   },
 
   touchStartRedoBtn() {

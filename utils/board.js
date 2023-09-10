@@ -144,13 +144,15 @@ export class Board {
   execHandWriting(evt) {
     const x = evt.touches[0].x;
     const y = evt.touches[0].y;
+    const globalScale = this.getGlobalScale();
 
     if (this.commitActions.length) {
       const lastAction = this.commitActions[this.commitActions.length - 1];
       if (lastAction instanceof Handwriting && lastAction.actionVersion === this.actionVersion) {
         lastAction.addPoint({
           ctx: this.boardCtx,
-          point: new Pair(x, y)
+          point: new Pair(x - (this.currentBoardPosition.first / globalScale),
+            y - (this.currentBoardPosition.second / globalScale))
         });
         return;
       }
@@ -164,7 +166,8 @@ export class Board {
     });
     handwriting.addPoint({
       ctx: this.boardCtx,
-      point: new Pair(x, y)
+      point: new Pair(x - (this.currentBoardPosition.first / globalScale),
+        y - (this.currentBoardPosition.second / globalScale))
     });
     this.commitActions.push(handwriting);
   }
@@ -205,7 +208,7 @@ export class Board {
         actionVersion: this.actionVersion,
         scaleDistance,
         dragCenter,
-        prevBoardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+        initBoardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
       });
       this.commitActions.push(lastAction);
     }
@@ -215,7 +218,7 @@ export class Board {
         actionVersion: this.actionVersion,
         scaleDistance,
         dragCenter,
-        prevBoardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
+        initBoardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
       });
       this.commitActions.push(lastAction);
     }
@@ -225,23 +228,18 @@ export class Board {
       const originalCanvasWidth = this.boardCtx.canvas.width;
       const originalCanvasHeight = this.boardCtx.canvas.height;
 
+      const scaleMultiple = scaleDistance / lastAction.scaleDistance;
+
       this.currentBoardPosition.first += (dragCenter.first - lastAction.dragCenter.first);
       this.currentBoardPosition.second += (dragCenter.second - lastAction.dragCenter.second);
 
-      const scaleMultiple = scaleDistance / lastAction.scaleDistance;
-      lastAction.scaleDistance = scaleDistance;
       lastAction.dragCenter = dragCenter;
+      lastAction.scaleDistance = scaleDistance;
       // todo 记录总的缩放倍数
-      const widthOffset = lastAction.prevBoardSize.first * (scaleMultiple - 1);
-      const heightOffset = lastAction.prevBoardSize.second * (scaleMultiple - 1);
+      const widthOffset = lastAction.initBoardSize.first * (scaleMultiple - 1);
+      const heightOffset = lastAction.initBoardSize.second * (scaleMultiple - 1);
       let afterScaleWidth = this.currentBoardSize.first + widthOffset;
       let afterScaleHeight = this.currentBoardSize.second + heightOffset;
-      if (afterScaleWidth < originalCanvasWidth
-        || afterScaleHeight < originalCanvasHeight) {
-        // 缩放后的画布大小，不能小于当前画布大小
-        afterScaleWidth = originalCanvasWidth;
-        afterScaleHeight = originalCanvasHeight;
-      }
 
       // 更新缩放后的 board size
       this.currentBoardSize.first = afterScaleWidth;
@@ -260,8 +258,8 @@ export class Board {
 
       this.boardCtx.drawImage(
         this.offScreenImage,
-        ((originalCanvasWidth - subImageX) / DPR / 2) - this.currentBoardPosition.first,
-        ((originalCanvasHeight - subImageY) / DPR / 2) - this.currentBoardPosition.second,
+        ((originalCanvasWidth - subImageX) / DPR / 2) - this.currentBoardPosition.first / globalScaleX,
+        ((originalCanvasHeight - subImageY) / DPR / 2) - this.currentBoardPosition.second / globalScaleX,
         subImageX / DPR,
         subImageY / DPR,
         0, 0,
@@ -276,7 +274,7 @@ export class Board {
    * @param { TouchEvent } evt 
    */
   boardTouchStart(evt) {
-
+    // ignore
   }
 
   /**
@@ -411,6 +409,13 @@ export class Board {
   }
 
   /**
+   * 获取当前画板的缩放比例
+   */
+  getGlobalScale() {
+    return this.currentBoardSize.first / this.boardCtx.canvas.width;
+  }
+
+  /**
    * 橡皮擦事件
    * 
    * @param {TouchEvent} evt 
@@ -419,12 +424,14 @@ export class Board {
     const x = evt.touches[0].x;
     const y = evt.touches[0].y;
 
+    const globalScale = this.getGlobalScale();
     if (this.commitActions.length) {
       const lastAction = this.commitActions[this.commitActions.length - 1];
       if (lastAction instanceof Handwriting && lastAction.actionVersion === this.actionVersion) {
         lastAction.addPoint({
           ctx: this.boardCtx,
-          point: new Pair(x, y)
+          point: new Pair(x - (this.currentBoardPosition.first / globalScale),
+            y - (this.currentBoardPosition.second / globalScale))
         });
         return;
       }
@@ -438,7 +445,8 @@ export class Board {
     });
     eraser.addPoint({
       ctx: this.boardCtx,
-      point: new Pair(x, y)
+      point: new Pair(x - (this.currentBoardPosition.first / globalScale),
+        y - (this.currentBoardPosition.second / globalScale))
     });
     this.commitActions.push(eraser);
   }
