@@ -152,7 +152,6 @@ export class Board {
           ctx: this.boardCtx,
           point: new Pair(x, y),
           boardSize: this.currentBoardSize,
-          offset: this.currentBoardPosition
         });
         return;
       }
@@ -162,13 +161,13 @@ export class Board {
       actionVersion: this.actionVersion,
       ctxColor: this.handwritingColor,
       width: this.handwritingWidth,
-      ctx: this.boardCtx
+      ctx: this.boardCtx,
+      offset: new Pair(this.currentBoardPosition.first, this.currentBoardPosition.second),
     });
     handwriting.addPoint({
       ctx: this.boardCtx,
       point: new Pair(x, y),
       boardSize: this.currentBoardSize,
-      offset: this.currentBoardPosition
     });
     this.commitActions.push(handwriting);
   }
@@ -231,6 +230,8 @@ export class Board {
 
       const scaleMultiple = scaleDistance / lastAction.scaleDistance;
 
+      this.currentBoardPosition.first *= scaleMultiple;
+      this.currentBoardPosition.second *= scaleMultiple;
       this.currentBoardPosition.first += (dragCenter.first - lastAction.dragCenter.first);
       this.currentBoardPosition.second += (dragCenter.second - lastAction.dragCenter.second);
 
@@ -279,8 +280,8 @@ export class Board {
 
       this.boardCtx.drawImage(
         this.offScreenImage,
-        ((originalCanvasWidth - subImageX) / DPR / 2) - this.currentBoardPosition.first / globalScaleX,
-        ((originalCanvasHeight - subImageY) / DPR / 2) - this.currentBoardPosition.second / globalScaleX,
+        ((originalCanvasWidth - subImageX) / DPR / 2) - this.currentBoardPosition.first,
+        ((originalCanvasHeight - subImageY) / DPR / 2) - this.currentBoardPosition.second,
         subImageX / DPR,
         subImageY / DPR,
         0, 0,
@@ -371,7 +372,6 @@ export class Board {
         item.reDraw({
           ctx: this.boardCtx,
           boardSize: new Pair(this.currentBoardSize.first, this.currentBoardSize.second),
-          offset: this.currentBoardPosition
         });
       } else if (item instanceof ScaleDrag) {
         // todo
@@ -451,7 +451,6 @@ export class Board {
           ctx: this.boardCtx,
           point: new Pair(x, y),
           boardSize: this.currentBoardSize,
-          offset: this.currentBoardPosition
         });
         return;
       }
@@ -462,12 +461,12 @@ export class Board {
       // todo background color
       ctxColor: 'white',
       width: this.handwritingWidth * 4,
+      offset: new Pair(this.currentBoardPosition.first, this.currentBoardPosition.second),
     });
     eraser.addPoint({
       ctx: this.boardCtx,
       point: new Pair(x, y),
       boardSize: this.currentBoardSize,
-      offset: this.currentBoardPosition
     });
     this.commitActions.push(eraser);
   }

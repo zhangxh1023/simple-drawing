@@ -13,9 +13,10 @@ export class Handwriting {
    * @param { number } options.actionVersion 动作 version
    * @param { string } options.ctxColor ctx 颜色
    * @param { number } options.width 画笔宽度
+   * @param { Pair<number> } options.offset 距离 canvas 左上角顶点偏移量
    */
   constructor(options) {
-    const { actionVersion, ctxColor, width } = options;
+    const { actionVersion, ctxColor, width, offset } = options;
     /**
      * 手写绘画轨迹坐标点
      * 存储的是 1 倍缩放，基于画板左上角顶点坐标的坐标点
@@ -23,6 +24,13 @@ export class Handwriting {
      * @type { Pair<number>[] } 坐标点列表，points[0] 为第一个坐标点, first: x, second: y
      */
     this.points = [];
+
+    /**
+     * 偏移量
+     * 
+     * @type { Pair<number>[] } 距离 canvas 左上角顶点偏移量, first: x, second: y
+     */
+    this.offset = offset;
 
     /**
      * 动作 id
@@ -54,13 +62,12 @@ export class Handwriting {
    * @param { CanvasRenderingContext2D } options.ctx 画板 context
    * @param { Pair<number> } options.point 坐标点
    * @param { Pair<number> } options.boardSize board size
-   * @param { Pair<number> } options.offset offset 偏移
    */
   addPoint(options) {
-    const { ctx, point, boardSize, offset } = options;
+    const { ctx, point, boardSize } = options;
     const scale = boardSize.first / ctx.canvas.width;
-    const offsetX = offset.first / scale;
-    const offsetY = offset.second / scale;
+    const offsetX = this.offset.first / scale;
+    const offsetY = this.offset.second / scale;
     this.points.push(new Pair(point.first + offsetX, point.second + offsetY));
     if (this.points.length == 1) {
       ctx.beginPath();
@@ -81,10 +88,9 @@ export class Handwriting {
    * @param { object } options 配置
    * @param { CanvasRenderingContext2D } options.ctx 画板 context
    * @param { Pair<number> } options.boardSize board size
-   * @param { Pair<number> } options.offset offset 偏移
    */
   reDraw(options) {
-    const { ctx, boardSize, offset } = options;
+    const { ctx, boardSize } = options;
     if (!this.points.length) return;
 
     ctx.beginPath();
@@ -94,22 +100,19 @@ export class Handwriting {
     ctx.lineJoin = 'round';
 
     let isStart = false;
-    let offsetX = 0;
-    let offsetY = 0;
-    offsetX -= (boardSize.first - ctx.canvas.width) / 2 / DPR;
-    offsetY -= (boardSize.second - ctx.canvas.height) / 2 / DPR;
-    if (offset) {
-      offsetX += offset.first;
-      offsetY += offset.second;
-    }
+
+    let offsetX = (boardSize.first - ctx.canvas.width) / 2 / DPR / scale;
+    let offsetY = (boardSize.second - ctx.canvas.height) / 2 / DPR / scale;
+    offsetX += this.offset.first;
+    offsetY += this.offset.second;
 
     for (const item of this.points) {
       // 跳过超出屏幕的坐标点
       if (!isStart) {
-        ctx.moveTo(Math.round(item.first * scale) + (offsetX / scale), Math.round(item.second * scale) + (offsetY / scale));
+        ctx.moveTo(Math.round(item.first * scale) + offsetX, Math.round(item.second * scale) + offsetY);
         isStart = true;
       } else {
-        ctx.lineTo(Math.round(item.first * scale) + (offsetX / scale), Math.round(item.second * scale) + (offsetY / scale));
+        ctx.lineTo(Math.round(item.first * scale) + offsetX, Math.round(item.second * scale) + offsetY);
       }
     }
     ctx.stroke();
